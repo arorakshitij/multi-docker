@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+before_install:
+  -docker build -t arorakshitij2/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true arorakshitij2/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t arorakshitij2/react-client ./client
+  - docker build -t arorakshitij2/react-nginx ./nginx
+  - docker build -t arorakshitij2/react-server ./server
+  - docker build -t arorakshitij2/react-worker ./worker
+
+  # Login to Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take the image to docker hub
+
+  - docker push arorakshitij2/react-client
+  - docker push arorakshitij2/react-nginx
+  - docker push arorakshitij2/react-server
+  - docker push arorakshitij2/react-worker
